@@ -185,6 +185,9 @@ jobs:
           
           # Remove defconfig check
           sed -i '2s/check_defconfig//' ./common/build.config.gki
+          sed -i "s/'%s%s' -g/'%s%s' -/" ./common/scripts/setlocalversion
+          sed -i 's/\$(echo \$head | cut -c1-12)/wings123/' ./common/scripts/setlocalversion
+          sed -i "s/'%s' -dirty/'%s'/" ./common/scripts/setlocalversion
           # Custom Kernel Name
           sed -i "s/'%s' -dirty/'%s'/" msm-kernel/scripts/setlocalversion
           sed -i 's/cut -c1-12/cut -c1-8/' msm-kernel/scripts/setlocalversion
@@ -208,7 +211,7 @@ jobs:
               --nokleaf_localversion \
               --config=stamp \
               --user_kmi_symbol_lists=//msm-kernel:android/abi_gki_aarch64_qcom \
-              --lto=thin \  # 启用 thin LTO
+              --lto=full \  # 启用 thin LTO
               --ignore_missing_projects \
               -o "$(pwd)/out          
             
