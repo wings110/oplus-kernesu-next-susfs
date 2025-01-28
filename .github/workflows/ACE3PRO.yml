@@ -208,7 +208,7 @@ jobs:
               --nokleaf_localversion \
               --config=stamp \
               --user_kmi_symbol_lists=//msm-kernel:android/abi_gki_aarch64_qcom \
-              --lto=thin \  # 启用 thin LTO
+              --lto=full \  # 启用 thin LTO
               --ignore_missing_projects \
               -o "$(pwd)/out"          
             
