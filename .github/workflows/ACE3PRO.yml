@@ -210,7 +210,7 @@ jobs:
               --user_kmi_symbol_lists=//msm-kernel:android/abi_gki_aarch64_qcom \
               --lto=thin \  # 启用 thin LTO
               --ignore_missing_projects \
-              -o "$(pwd)/out          
+              -o "$(pwd)/out"          
             
       - name: Debug Working Directory
         working-directory: builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/kernel_platform/out/dist
