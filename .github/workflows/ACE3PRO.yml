@@ -201,16 +201,15 @@ jobs:
           export PATH="/usr/lib/ccache:$PATH"
           # Modified build command with correct syntax
           ./build_with_bazel.py \
-              -t pineapple \
-              gki \
-              --jobs=$(nproc --all) \
-              --verbose_failures \
-              --nokleaf_localversion \
-              --config=stamp \
-              --user_kmi_symbol_lists=//msm-kernel:android/abi_gki_aarch64_qcom \
-              --lto=full \  # 启用 thin LTO
-              --ignore_missing_projects \
-              -o "$(pwd)/out"          
+            -t pineapple \
+            gki \
+            --jobs=$(nproc --all) \
+            --verbose_failures \
+            --nokleaf_localversion \
+            --config=stamp \
+            --user_kmi_symbol_lists=//msm-kernel:android/abi_gki_aarch64_qcom \
+            --lto=thin \  # 启用 thin LTO
+            -o "$(pwd)/out"          
             
       - name: Debug Working Directory
         working-directory: builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/kernel_platform/out/dist
