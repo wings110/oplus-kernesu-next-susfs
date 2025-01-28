@@ -180,6 +180,7 @@ jobs:
           sed -i "s/'%s%s' -g/'%s%s' -/" ./msm-kernel/scripts/setlocalversion
           sed -i 's/\$(echo \$head | cut -c1-12)/wings110/' ./msm-kernel/scripts/setlocalversion
           sed -i "s/'%s' -dirty/'%s'/" ./msm-kernel/scripts/setlocalversion
+          sed -i 's/git -C \${ROOT_DIR}\/\${KERNEL_DIR} log -1 --pretty=%ct/date +%s/' build/kernel/_setup_env.sh
           
           # LTO=full BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
 
