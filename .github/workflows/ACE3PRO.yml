@@ -159,6 +159,16 @@ jobs:
       - name: Configure Kernel
         working-directory: builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/kernel_platform
         run: |
+          # Remove defconfig check
+          sed -i '2s/check_defconfig//' ./common/build.config.gki
+          
+          # Custom Kernel Name
+          sed -i "s/'%s' -dirty/'%s'/" ./common/scripts/setlocalversion
+          sed -i 's/cut -c1-12/cut -c1-8/' ./common/scripts/setlocalversion
+          sed -i "s/'%s' -dirty/'%s'/" ./msm-kernel/scripts/setlocalversion
+          sed -i 's/cut -c1-12/cut -c1-8/' ./msm-kernel/scripts/setlocalversion          
+          sed -i '/echo "LTO $LTO "/i export LTO=thin' ./oplus/build/oplus_setup.sh   
+        
           # Basic KernelSU and SUSFS configs
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -177,22 +187,10 @@ jobs:
           echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig        
-          echo 'CONFIG_LOCALVERSION="-Wings110-KSUSUSFS"' >> ./common/arch/arm64/configs/gki_defconfig
+          echo 'CONFIG_LOCALVERSION="-Wings110-GKI@KernelSU-NEXT+SUSFS"' >> ./common/arch/arm64/configs/gki_defconfig
           echo "# CONFIG_LOCALVERSION_AUTO is not set" >> ./common/arch/arm64/configs/gki_defconfig
-          
-          # Add additional tmpfs config setting
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig     
-          
-          # Remove defconfig check
-          sed -i '2s/check_defconfig//' ./common/build.config.gki
-          # Custom Kernel Name
-          sed -i "s/'%s' -dirty/'%s'/" ./msm-kernel/scripts/setlocalversion
-          sed -i 's/cut -c1-12/cut -c1-8/' ./msm-kernel/scripts/setlocalversion
-          sed -i "s/'%s' -dirty/'%s'/" ./common/scripts/setlocalversion
-          sed -i 's/cut -c1-12/cut -c1-8/' ./common/scripts/setlocalversion
-          # sed -i '/echo "LTO $LTO "/i export LTO=thin' ./oplus/build/oplus_setup.sh           
-
-          
+ 
           # LTO=full BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
 
       - name: Build Kernel
