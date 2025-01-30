@@ -186,10 +186,10 @@ jobs:
           # Remove defconfig check
           sed -i '2s/check_defconfig//' ./common/build.config.gki
           # Custom Kernel Name
-          sed -i "s/'%s' -dirty/'%s'/" msm-kernel/scripts/setlocalversion
-          sed -i 's/cut -c1-12/cut -c1-8/' msm-kernel/scripts/setlocalversion
-          sed -i "s/'%s' -dirty/'%s'/" common/scripts/setlocalversion
-          sed -i 's/cut -c1-12/cut -c1-8/' common/scripts/setlocalversion
+          sed -i "s/'%s' -dirty/'%s'/" ./msm-kernel/scripts/setlocalversion
+          sed -i 's/cut -c1-12/cut -c1-8/' ./msm-kernel/scripts/setlocalversion
+          sed -i "s/'%s' -dirty/'%s'/" ./common/scripts/setlocalversion
+          sed -i 's/cut -c1-12/cut -c1-8/' ./common/scripts/setlocalversion
           # sed -i '/echo "LTO $LTO "/i export LTO=thin' ./oplus/build/oplus_setup.sh           
 
           
