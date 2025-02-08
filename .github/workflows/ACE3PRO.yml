@@ -195,7 +195,7 @@ jobs:
           echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig     
  
 
-       - name: Build Kernel
+      - name: Build Kernel
         working-directory: builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/
         run: |
           cd kernel_platform
