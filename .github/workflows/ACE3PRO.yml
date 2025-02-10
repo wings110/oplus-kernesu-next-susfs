@@ -112,10 +112,16 @@ jobs:
           repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
           rm -rf ./kernel_platform/common/android/abi_gki_protected_exports_*
 
+      - name: Setup Kernel deconfig
+        working-directory: builds/${{ env.ROOT_DIR }}
+        run: |
+        wget https://github.com/wings110/oplus-kernesu-next-susfs/blob/main/patches/gki_defconfig
+        mv gki_defconfig common/arch/arm64/configs/gki_defconfig
+
       - name: Setup KernelSU
         working-directory: builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/kernel_platform
         run: |
-          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -
+          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
           cd KernelSU-Next/kernel
           KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10200)
           sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" Makefile
@@ -132,32 +138,28 @@ jobs:
           cp ../../../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           
           # Copy patches
-          cp ../../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU-Next/
+          # cp ../../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU-Next/
+          # cp ../../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./KernelSU-Next
           cp ../../../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ./common/
           cp ../../../kernel_patches/69_hide_stuff.patch ./common/
-          #cp ../../../kernel_patches/selinux.c_fix.patch ./
-          #cp ../../../kernel_patches/apk_sign.c_fix.patch ./
-          #cp ../../../kernel_patches/Makefile_fix.patch ./
-          #cp ../../../kernel_patches/core_hook.c_fix.patch ./
-          cp ../../../kernel_patches/KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch ./KernelSU-Next
           
           # Apply patches
           cd KernelSU-Next
-          patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
+          # patch -p1 --forward < KernelSU-Next-Implement-SUSFS-v1.5.5-Universal.patch || true
           
           cd ../common
           patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch || true
           patch -p1 -F 3 < 69_hide_stuff.patch || true
-          sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile
+          # sed -i '/obj-$(CONFIG_KSU_SUSFS_SUS_SU) += sus_su.o/d' ./fs/Makefile
           # git add -A && git commit -a -m "BUILD Kernel" || true
           
           cd ..
           # git add -A && git commit -a -m "BUILD Kernel" || true
           # git rm --cached KernelSU-Next
-          #patch -p1 -F 3 < selinux.c_fix.patch || true
-          #patch -p1 -F 3 < apk_sign.c_fix.patch || true
-          #patch -p1 --fuzz=3 < Makefile_fix.patch || true
-          #patch -p1 --fuzz=3 < core_hook.c_fix.patch || true
+          # patch -p1 -F 3 < selinux.c_fix.patch || true
+          # patch -p1 -F 3 < apk_sign.c_fix.patch || true
+          # patch -p1 --fuzz=3 < Makefile_fix.patch || true
+          # patch -p1 --fuzz=3 < core_hook.c_fix.patch || true
 
       - name: Configure Kernel
         working-directory: builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/kernel_platform
@@ -167,33 +169,14 @@ jobs:
           
           # Custom Kernel Name
           sed -i "s/'%s' -dirty/'%s'/" ./common/scripts/setlocalversion
-          sed -i 's/cut -c1-12/cut -c1-8/' ./common/scripts/setlocalversion
+          sed -i 's/cut -c1-12/cut -c1-7/' ./common/scripts/setlocalversion
           sed -i "s/'%s' -dirty/'%s'/" ./msm-kernel/scripts/setlocalversion
-          sed -i 's/cut -c1-12/cut -c1-8/' ./msm-kernel/scripts/setlocalversion          
+          sed -i 's/cut -c1-12/cut -c1-7/' ./msm-kernel/scripts/setlocalversion          
           sed -i '/echo "LTO $LTO "/i export LTO=thin' ./oplus/build/oplus_setup.sh   
         
-          # Basic KernelSU and SUSFS configs
-          echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig        
-          # echo 'CONFIG_LOCALVERSION="-Wings110-GKI@KernelSU-NEXT+SUSFS"' >> ./common/arch/arm64/configs/gki_defconfig
-          # echo "# CONFIG_LOCALVERSION_AUTO is not set" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig     
- 
+          # Basic KernelSU and SUSFS configs      
+          echo 'CONFIG_LOCALVERSION="-Wings110-GKI@KernelSU-NEXT+SUSFS"' >> ./common/arch/arm64/configs/gki_defconfig
+          echo "# CONFIG_LOCALVERSION_AUTO is not set" >> ./common/arch/arm64/configs/gki_defconfig  
 
       - name: Build Kernel
         working-directory: builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/
@@ -270,3 +253,4 @@ jobs:
             builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/kernel_platform/out/*.log
             builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/kernel_platform/**/*.rej
           retention-days: 5
+
