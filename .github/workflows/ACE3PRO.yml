@@ -115,8 +115,8 @@ jobs:
       - name: Setup Kernel deconfig
         working-directory: builds/${{ env.ROOT_DIR }}
         run: |
-        wget https://github.com/wings110/oplus-kernesu-next-susfs/blob/main/patches/gki_defconfig
-        mv gki_defconfig common/arch/arm64/configs/gki_defconfig
+        # wget https://github.com/wings110/oplus-kernesu-next-susfs/blob/main/patches/gki_defconfig
+        # mv gki_defconfig common/arch/arm64/configs/gki_defconfig
 
       - name: Setup KernelSU
         working-directory: builds/${{ env.ROOT_DIR }}/kernel_platform/oneplus_ace3_pro_v/kernel_platform
